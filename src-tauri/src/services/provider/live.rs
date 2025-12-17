@@ -96,8 +96,10 @@ impl LiveSnapshot {
 pub(crate) fn write_live_snapshot(app_type: &AppType, provider: &Provider) -> Result<(), AppError> {
     match app_type {
         AppType::Claude => {
-            let path = get_claude_settings_path();
-            write_json_file(&path, &provider.settings_config)?;
+            // 写入预设文件，不再直接修改 settings.json
+            let preset_path = crate::config::get_claude_preset_path(&provider.name);
+            write_json_file(&preset_path, &provider.settings_config)?;
+            log::info!("Created Claude preset: {}", preset_path.display());
         }
         AppType::Codex => {
             let obj = provider

@@ -1,5 +1,11 @@
 import { useMemo, useState, useEffect } from "react";
-import { GripVertical, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  GripVertical,
+  ChevronDown,
+  ChevronUp,
+  Terminal,
+  FileCode,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type {
   DraggableAttributes,
@@ -8,6 +14,7 @@ import type {
 import type { Provider } from "@/types";
 import type { AppId } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { ProviderActions } from "@/components/providers/ProviderActions";
 import { ProviderIcon } from "@/components/ProviderIcon";
 import UsageFooter from "@/components/UsageFooter";
@@ -36,6 +43,8 @@ interface ProviderCardProps {
   isProxyRunning: boolean;
   isProxyTakeover?: boolean; // 代理接管模式（Live配置已被接管，切换为热切换）
   dragHandleProps?: DragHandleProps;
+  onCopyCommand?: (provider: Provider) => void;
+  onGenerateScript?: (provider: Provider) => void;
 }
 
 const extractApiUrl = (provider: Provider, fallbackText: string) => {
@@ -88,6 +97,8 @@ export function ProviderCard({
   isProxyRunning,
   isProxyTakeover = false,
   dragHandleProps,
+  onCopyCommand,
+  onGenerateScript,
 }: ProviderCardProps) {
   const { t } = useTranslation();
 
@@ -227,6 +238,40 @@ export function ProviderCard({
                     ⭐
                   </span>
                 )}
+
+              {/* Claude 预设按钮 - 始终可见 */}
+              {appId === "claude" && (
+                <div className="flex items-center gap-1 ml-2">
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onCopyCommand?.(provider);
+                    }}
+                    title={t("provider.copyCommand", {
+                      defaultValue: "复制命令",
+                    })}
+                    className="h-7 w-7 p-1"
+                  >
+                    <Terminal className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onGenerateScript?.(provider);
+                    }}
+                    title={t("provider.generateScript", {
+                      defaultValue: "生成脚本",
+                    })}
+                    className="h-7 w-7 p-1"
+                  >
+                    <FileCode className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
 
             {displayUrl && (

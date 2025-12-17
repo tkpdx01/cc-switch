@@ -62,6 +62,57 @@ pub fn get_claude_settings_path() -> PathBuf {
     settings
 }
 
+/// 获取 Claude 预设文件路径
+/// 格式: ~/.claude/settings.{sanitized_name}.json
+pub fn get_claude_preset_path(provider_name: &str) -> PathBuf {
+    let sanitized = sanitize_provider_name(provider_name);
+    get_claude_config_dir().join(format!("settings.{}.json", sanitized))
+}
+
+/// 生成 Claude CLI 命令
+pub fn generate_claude_command(provider_name: &str) -> String {
+    let sanitized = sanitize_provider_name(provider_name);
+    format!("claude -c settings.{}.json", sanitized)
+}
+
+/// 获取脚本文件路径
+pub fn get_claude_script_path(provider_name: &str) -> PathBuf {
+    let sanitized = sanitize_provider_name(provider_name);
+    let dir = get_claude_config_dir();
+
+    #[cfg(target_os = "windows")]
+    {
+        dir.join(format!("switch-{}.bat", sanitized))
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        dir.join(format!("switch-{}.sh", sanitized))
+    }
+}
+
+/// 生成脚本内容
+pub fn generate_claude_script(provider_name: &str) -> String {
+    let sanitized = sanitize_provider_name(provider_name);
+    let config_file = format!("settings.{}.json", sanitized);
+
+    #[cfg(target_os = "windows")]
+    {
+        format!(
+            "@echo off\r\necho Switching to Claude preset: {}\r\nclaude -c {}\r\n",
+            provider_name, config_file
+        )
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        format!(
+            "#!/bin/bash\necho \"Switching to Claude preset: {}\"\nclaude -c {}\n",
+            provider_name, config_file
+        )
+    }
+}
+
 /// 获取应用配置目录路径 (~/.cc-switch)
 pub fn get_app_config_dir() -> PathBuf {
     if let Some(custom) = crate::app_store::get_app_config_dir_override() {
@@ -79,7 +130,6 @@ pub fn get_app_config_path() -> PathBuf {
 }
 
 /// 清理供应商名称，确保文件名安全
-#[allow(dead_code)]
 pub fn sanitize_provider_name(name: &str) -> String {
     name.chars()
         .map(|c| match c {

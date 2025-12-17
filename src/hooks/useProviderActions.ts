@@ -133,12 +133,86 @@ export function useProviderActions(activeApp: AppId) {
     [activeApp, queryClient, t],
   );
 
+  // 复制 Claude 预设命令到剪贴板
+  const copyClaudeCommand = useCallback(
+    async (provider: Provider) => {
+      if (activeApp !== "claude") {
+        toast.error(
+          t("provider.onlyForClaude", {
+            defaultValue: "此功能仅适用于 Claude",
+          }),
+        );
+        return;
+      }
+
+      try {
+        const command = await providersApi.getClaudePresetCommand(
+          provider.id,
+          activeApp,
+        );
+        await navigator.clipboard.writeText(command);
+        toast.success(
+          t("provider.commandCopied", {
+            defaultValue: "命令已复制到剪贴板",
+          }),
+          { closeButton: true },
+        );
+      } catch (error) {
+        const detail =
+          extractErrorMessage(error) ||
+          t("provider.copyCommandFailed", {
+            defaultValue: "复制命令失败",
+          });
+        toast.error(detail);
+      }
+    },
+    [activeApp, t],
+  );
+
+  // 生成 Claude 预设脚本
+  const generateClaudeScript = useCallback(
+    async (provider: Provider) => {
+      if (activeApp !== "claude") {
+        toast.error(
+          t("provider.onlyForClaude", {
+            defaultValue: "此功能仅适用于 Claude",
+          }),
+        );
+        return;
+      }
+
+      try {
+        const scriptPath = await providersApi.generateClaudePresetScript(
+          provider.id,
+          activeApp,
+        );
+        toast.success(
+          t("provider.scriptGenerated", {
+            defaultValue: "脚本已生成: {{path}}",
+            path: scriptPath,
+          }),
+          { closeButton: true, duration: 5000 },
+        );
+      } catch (error) {
+        const detail =
+          extractErrorMessage(error) ||
+          t("provider.generateScriptFailed", {
+            defaultValue: "生成脚本失败",
+          });
+        toast.error(detail);
+      }
+    },
+    [activeApp, t],
+  );
+
   return {
     addProvider,
     updateProvider,
     switchProvider,
     deleteProvider,
     saveUsageScript,
+    copyClaudeCommand,
+    generateClaudeScript,
     isLoading:
       addProviderMutation.isPending ||
       updateProviderMutation.isPending ||

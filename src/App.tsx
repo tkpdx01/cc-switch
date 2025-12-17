@@ -83,6 +83,8 @@ function App() {
     switchProvider,
     deleteProvider,
     saveUsageScript,
+    copyClaudeCommand,
+    generateClaudeScript,
   } = useProviderActions(activeApp);
 
   // 监听来自托盘菜单的切换事件
@@ -332,6 +334,8 @@ function App() {
                   onConfigureUsage={setUsageProvider}
                   onOpenWebsite={handleOpenWebsite}
                   onCreate={() => setIsAddOpen(true)}
+                  onCopyCommand={copyClaudeCommand}
+                  onGenerateScript={generateClaudeScript}
                 />
               </div>
             </div>

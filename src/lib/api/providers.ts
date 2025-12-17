@@ -61,4 +61,21 @@ export const providersApi = {
       handler(payload);
     });
   },
+
+  async getClaudePresetCommand(
+    providerId: string,
+    appId: AppId,
+  ): Promise<string> {
+    return await invoke("get_claude_preset_command", { providerId, app: appId });
+  },
+
+  async generateClaudePresetScript(
+    providerId: string,
+    appId: AppId,
+  ): Promise<string> {
+    return await invoke("generate_claude_preset_script", {
+      providerId,
+      app: appId,
+    });
+  },
 };

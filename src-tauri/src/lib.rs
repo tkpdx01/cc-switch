@@ -49,7 +49,6 @@ use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 
 use std::sync::Arc;
 use tauri::tray::{TrayIconBuilder, TrayIconEvent};
-#[cfg(target_os = "macos")]
 use tauri::RunEvent;
 use tauri::{Emitter, Manager};
 
@@ -660,6 +659,9 @@ pub fn run() {
             commands::set_app_config_dir_override,
             // provider sort order management
             commands::update_providers_sort_order,
+            // Claude preset commands
+            commands::get_claude_preset_command,
+            commands::generate_claude_preset_script,
             // theirs: config import/export and dialogs
             commands::export_config_to_file,
             commands::import_config_from_file,

@@ -27,6 +27,8 @@ interface ProviderListProps {
   isLoading?: boolean;
   isProxyRunning?: boolean; // 代理服务运行状态
   isProxyTakeover?: boolean; // 代理接管模式（Live配置已被接管）
+  onCopyCommand?: (provider: Provider) => void;
+  onGenerateScript?: (provider: Provider) => void;
 }
 
 export function ProviderList({
@@ -43,6 +45,8 @@ export function ProviderList({
   isLoading = false,
   isProxyRunning = false, // 默认值为 false
   isProxyTakeover = false, // 默认值为 false
+  onCopyCommand,
+  onGenerateScript,
 }: ProviderListProps) {
   const { sortedProviders, sensors, handleDragEnd } = useDragSort(
     providers,
@@ -103,6 +107,8 @@ export function ProviderList({
               isTesting={isChecking(provider.id)}
               isProxyRunning={isProxyRunning}
               isProxyTakeover={isProxyTakeover}
+              onCopyCommand={onCopyCommand}
+              onGenerateScript={onGenerateScript}
             />
           ))}
         </div>
@@ -125,6 +131,8 @@ interface SortableProviderCardProps {
   isTesting: boolean;
   isProxyRunning: boolean;
   isProxyTakeover: boolean;
+  onCopyCommand?: (provider: Provider) => void;
+  onGenerateScript?: (provider: Provider) => void;
 }
 
 function SortableProviderCard({
@@ -141,6 +149,8 @@ function SortableProviderCard({
   isTesting,
   isProxyRunning,
   isProxyTakeover,
+  onCopyCommand,
+  onGenerateScript,
 }: SortableProviderCardProps) {
   const {
     setNodeRef,
@@ -174,6 +184,8 @@ function SortableProviderCard({
         isTesting={isTesting}
         isProxyRunning={isProxyRunning}
         isProxyTakeover={isProxyTakeover}
+        onCopyCommand={onCopyCommand}
+        onGenerateScript={onGenerateScript}
         dragHandleProps={{
           attributes,
           listeners,

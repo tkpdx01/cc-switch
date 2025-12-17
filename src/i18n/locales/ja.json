@@ -97,6 +97,13 @@
     "sortUpdated": "並び順を更新しました",
     "usageSaved": "利用状況の設定を保存しました",
     "usageSaveFailed": "利用状況設定の保存に失敗しました",
+    "copyCommand": "コマンドをコピー",
+    "generateScript": "スクリプトを生成",
+    "commandCopied": "コマンドをクリップボードにコピーしました",
+    "scriptGenerated": "スクリプトを生成しました: {{path}}",
+    "onlyForClaude": "この機能は Claude 専用です",
+    "copyCommandFailed": "コマンドのコピーに失敗しました",
+    "generateScriptFailed": "スクリプトの生成に失敗しました",
     "geminiConfig": "Gemini 設定",
     "geminiConfigHint": ".env 形式で Gemini を設定してください",
     "form": {

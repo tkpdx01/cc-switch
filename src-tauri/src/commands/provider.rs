@@ -229,3 +229,67 @@ pub fn update_providers_sort_order(
     let app_type = AppType::from_str(&app).map_err(|e| e.to_string())?;
     ProviderService::update_sort_order(state.inner(), app_type, updates).map_err(|e| e.to_string())
 }
+
+/// 获取 Claude 预设命令
+#[tauri::command]
+pub fn get_claude_preset_command(
+    state: State<'_, AppState>,
+    app: String,
+    #[allow(non_snake_case)] providerId: String,
+) -> Result<String, String> {
+    let app_type = AppType::from_str(&app).map_err(|e| e.to_string())?;
+
+    // 仅支持 Claude
+    if !matches!(app_type, AppType::Claude) {
+        return Err("此功能仅适用于 Claude".to_string());
+    }
+
+    let providers = ProviderService::list(state.inner(), app_type).map_err(|e| e.to_string())?;
+    let provider = providers
+        .get(&providerId)
+        .ok_or_else(|| format!("供应商 {} 不存在", providerId))?;
+
+    Ok(crate::config::generate_claude_command(&provider.name))
+}
+
+/// 生成 Claude 预设脚本
+#[tauri::command]
+pub fn generate_claude_preset_script(
+    state: State<'_, AppState>,
+    app: String,
+    #[allow(non_snake_case)] providerId: String,
+) -> Result<String, String> {
+    let app_type = AppType::from_str(&app).map_err(|e| e.to_string())?;
+
+    // 仅支持 Claude
+    if !matches!(app_type, AppType::Claude) {
+        return Err("此功能仅适用于 Claude".to_string());
+    }
+
+    let providers = ProviderService::list(state.inner(), app_type).map_err(|e| e.to_string())?;
+    let provider = providers
+        .get(&providerId)
+        .ok_or_else(|| format!("供应商 {} 不存在", providerId))?;
+
+    // 生成脚本内容
+    let script_content = crate::config::generate_claude_script(&provider.name);
+
+    // 获取脚本路径
+    let script_path = crate::config::get_claude_script_path(&provider.name);
+
+    // 写入脚本文件
+    crate::config::write_text_file(&script_path, &script_content).map_err(|e| e.to_string())?;
+
+    // Unix: 设置可执行权限
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let mut perms = std::fs::metadata(&script_path)
+            .map_err(|e| e.to_string())?
+            .permissions();
+        perms.set_mode(0o755);
+        std::fs::set_permissions(&script_path, perms).map_err(|e| e.to_string())?;
+    }
+
+    Ok(script_path.to_string_lossy().to_string())
+}
