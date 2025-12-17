@@ -371,7 +371,14 @@ pub fn run() {
                 }
             }
 
-            // 3. 导入 MCP 服务器配置（表空时触发）
+            // 3. 生成所有 Claude 预设文件
+            if let Err(e) = crate::services::provider::ProviderService::generate_all_claude_presets(&app_state) {
+                log::warn!("✗ Failed to generate Claude presets: {e}");
+            } else {
+                log::info!("✓ Generated Claude preset files");
+            }
+
+            // 4. 导入 MCP 服务器配置（表空时触发）
             if app_state.db.is_mcp_table_empty().unwrap_or(false) {
                 log::info!("MCP table empty, importing from live configurations...");
 
@@ -660,6 +667,7 @@ pub fn run() {
             // provider sort order management
             commands::update_providers_sort_order,
             // Claude preset commands
+            commands::generate_all_claude_presets,
             commands::get_claude_preset_command,
             commands::generate_claude_preset_script,
             // theirs: config import/export and dialogs

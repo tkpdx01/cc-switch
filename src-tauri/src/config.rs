@@ -91,6 +91,14 @@ pub fn get_claude_script_path(provider_name: &str) -> PathBuf {
     }
 }
 
+/// 写入 Claude 预设文件
+pub fn write_claude_preset(provider_name: &str, config: &serde_json::Value) -> Result<(), crate::error::AppError> {
+    let preset_path = get_claude_preset_path(provider_name);
+    write_json_file(&preset_path, config)?;
+    log::info!("Created Claude preset: {}", preset_path.display());
+    Ok(())
+}
+
 /// 生成脚本内容
 pub fn generate_claude_script(provider_name: &str) -> String {
     let sanitized = sanitize_provider_name(provider_name);

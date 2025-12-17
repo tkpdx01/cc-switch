@@ -230,6 +230,12 @@ pub fn update_providers_sort_order(
     ProviderService::update_sort_order(state.inner(), app_type, updates).map_err(|e| e.to_string())
 }
 
+/// 为所有 Claude 供应商生成预设文件
+#[tauri::command]
+pub fn generate_all_claude_presets(state: State<'_, AppState>) -> Result<(), String> {
+    ProviderService::generate_all_claude_presets(state.inner()).map_err(|e| e.to_string())
+}
+
 /// 获取 Claude 预设命令
 #[tauri::command]
 pub fn get_claude_preset_command(

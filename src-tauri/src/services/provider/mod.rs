@@ -91,6 +91,18 @@ impl ProviderService {
         state.db.get_all_providers(app_type.as_str())
     }
 
+    /// Generate preset files for all Claude providers
+    pub fn generate_all_claude_presets(state: &AppState) -> Result<(), AppError> {
+        let providers = state.db.get_all_providers(AppType::Claude.as_str())?;
+        for provider in providers.values() {
+            if let Err(e) = crate::config::write_claude_preset(&provider.name, &provider.settings_config) {
+                log::warn!("Failed to generate preset for {}: {}", provider.name, e);
+            }
+        }
+        log::info!("Generated {} Claude preset files", providers.len());
+        Ok(())
+    }
+
     /// Get current provider ID
     ///
     /// 使用有效的当前供应商 ID（验证过存在性）。
@@ -110,6 +122,11 @@ impl ProviderService {
 
         // Save to database
         state.db.save_provider(app_type.as_str(), &provider)?;
+
+        // Generate preset file for Claude providers
+        if matches!(app_type, AppType::Claude) {
+            let _ = crate::config::write_claude_preset(&provider.name, &provider.settings_config);
+        }
 
         // Check if sync is needed (if this is current provider, or no current provider)
         let current = state.db.get_current_provider(app_type.as_str())?;
@@ -142,6 +159,11 @@ impl ProviderService {
 
         // Save to database
         state.db.save_provider(app_type.as_str(), &provider)?;
+
+        // Generate preset file for Claude providers
+        if matches!(app_type, AppType::Claude) {
+            let _ = crate::config::write_claude_preset(&provider.name, &provider.settings_config);
+        }
 
         if is_current {
             // 如果代理接管模式处于激活状态，并且代理服务正在运行：
